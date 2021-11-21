@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
@@ -8,14 +10,12 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.0.0'
     id 'org.jetbrains.kotlin.jvm' version '1.6.0'
 }
+group "net.kunmc.lab"
+version "1.0.0"
+description "Corrosion Plugin"
 
 allprojects {
     apply plugin: "java"
-
-    group "net.kunmc.lab"
-    version "1.0.0"
-    description "Plugin"
-
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
@@ -92,5 +92,17 @@ processResources {
     filteringCharset 'UTF-8'
     filesMatching('plugin.yml') {
         expand props
+    }
+}
+
+task copyToServer(group: "copy", type: Copy) {
+    mustRunAfter build
+    from new File(buildDir.absolutePath, "libs/${rootProject.name}-${version}.jar")
+    into "./server/plugins"
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        filter ReplaceTokens, tokens: [version: version]
     }
 }

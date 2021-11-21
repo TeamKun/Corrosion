@@ -1,10 +1,11 @@
 package net.kunmc.lab.corrosion.command;
 
-import com.sun.tools.internal.jxc.ap.Const;
 import net.kunmc.lab.corrosion.config.ConfigManager;
 import net.kunmc.lab.corrosion.game.GameManager;
+import net.kunmc.lab.corrosion.task.Task;
 import net.kunmc.lab.corrosion.util.DecolationConst;
 import org.bukkit.command.*;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,17 +23,23 @@ public class CommandController implements CommandExecutor, TabCompleter {
                     .filter(e -> e.startsWith(input)).collect(Collectors.toList()));
         } else if (args.length == 2 && args[0].equals(CommandConst.CONFIG_SET)) {
             String input = args[args.length-1];
-            String[] target = {CommandConst.CONFIG_CORROSION_DEATH, CommandConst.CONFIG_UPDATE_BLOCK_TIME};
+            String[] target = {CommandConst.CONFIG_CORROSION_DEATH, CommandConst.CONFIG_CORROSION_BREAK, CommandConst.CONFIG_UPDATE_BLOCK_TIME};
             completions.addAll(Arrays.asList(target).stream()
                     .filter(e -> e.startsWith(input)).collect(Collectors.toList()));
         } else if (args.length == 3 && args[0].equals(CommandConst.CONFIG_SET) &&
                 args[1].equals(CommandConst.CONFIG_UPDATE_BLOCK_TIME)) {
             completions.add("<Number>");
         } else if (args.length == 3 && args[0].equals(CommandConst.CONFIG_SET) &&
-                args[1].equals(CommandConst.CONFIG_CORROSION_DEATH)) {
+                (args[1].equals(CommandConst.CONFIG_CORROSION_DEATH) ||
+                        args[1].equals(CommandConst.CONFIG_CORROSION_BREAK))) {
             String input = args[args.length - 1];
-            String[] target = {"true", "false"};
-            completions.addAll(Arrays.asList(target).stream()
+            List<String> target = new ArrayList<>();
+            if (ConfigManager.booleanConfig.get(args[1])) {
+                target.add("off");
+            } else {
+                target.add("on");
+            }
+            completions.addAll(target.stream()
                     .filter(e -> e.startsWith(input)).collect(Collectors.toList()));
         }
         return completions;
@@ -53,7 +60,11 @@ public class CommandController implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 if (!checkArgsNum(sender, args.length, 1)) return true;
-                GameManager.controller(GameManager.GameMode.MODE_START);
+                Player p = null;
+                if (sender instanceof Player){
+                    p =(Player) sender;
+                }
+                GameManager.controller(GameManager.GameMode.MODE_START, p);
                 sender.sendMessage(DecolationConst.GREEN + "開始します");
                 break;
             case CommandConst.STOP:
@@ -62,7 +73,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 if (!checkArgsNum(sender, args.length, 1)) return true;
-                GameManager.controller(GameManager.GameMode.MODE_NEUTRAL);
+                GameManager.controller(GameManager.GameMode.MODE_NEUTRAL, null);
                 sender.sendMessage(DecolationConst.GREEN + "終了します");
                 break;
             case CommandConst.CONFIG_RELOAD:
@@ -74,9 +85,16 @@ public class CommandController implements CommandExecutor, TabCompleter {
                 switch (args[1]) {
                     case CommandConst.CONFIG_UPDATE_BLOCK_TIME:
                         setIntConfig(sender, args, 3, CommandConst.CONFIG_UPDATE_BLOCK_TIME);
+                        Task.updateBlock();
+                        break;
+                    case CommandConst.CONFIG_START_RANGE:
+                        setIntConfig(sender, args, 3, CommandConst.CONFIG_START_RANGE);
                         break;
                     case CommandConst.CONFIG_CORROSION_DEATH:
                         setBooleanConfig(sender, args, 3, CommandConst.CONFIG_CORROSION_DEATH);
+                        break;
+                    case CommandConst.CONFIG_CORROSION_BREAK:
+                        setBooleanConfig(sender, args, 3, CommandConst.CONFIG_CORROSION_BREAK);
                         break;
                     default:
                         sender.sendMessage(DecolationConst.RED + "存在しない設定項目です");
@@ -116,9 +134,13 @@ public class CommandController implements CommandExecutor, TabCompleter {
         sender.sendMessage(String.format("%s%s"
                 , usagePrefix, CommandConst.CONFIG_RELOAD));
         sender.sendMessage(String.format("%sコンフィグリロード", descPrefix));
+
         sender.sendMessage(String.format("%s%s %s <number>"
                 , usagePrefix, CommandConst.CONFIG_SET, CommandConst.CONFIG_UPDATE_BLOCK_TIME));
         sender.sendMessage(String.format("%s腐食更新の間隔(秒)", descPrefix));
+        sender.sendMessage(String.format("%s%s %s <number>"
+                , usagePrefix, CommandConst.CONFIG_SET, CommandConst.CONFIG_START_RANGE));
+        sender.sendMessage(String.format("%sstart時の腐食ブロックの探索範囲", descPrefix));
         sender.sendMessage(String.format("%s%s %s <on|off>"
                 , usagePrefix, CommandConst.CONFIG_CORROSION_DEATH));
         sender.sendMessage(String.format("%s腐食ブロックに触れた場合に死ぬかどうかを変更", descPrefix));
@@ -161,6 +183,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
         int ret = validateNum(sender, args[2]);
         if (ret == -1) return false;
 
+        ConfigManager.integerConfig.put(configName, ret);
         ConfigManager.setConfig(configName);
         sender.sendMessage(DecolationConst.GREEN + configName + "の値を" + ConfigManager.integerConfig.get(configName) + "に変更しました");
         return true;

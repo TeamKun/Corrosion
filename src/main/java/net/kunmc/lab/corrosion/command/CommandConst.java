@@ -9,7 +9,9 @@ public class CommandConst {
     public static final String CONFIG_RELOAD = "reloadConfig";
 
     public static final String CONFIG_UPDATE_BLOCK_TIME = "updateBlockTime";
+    public static final String CONFIG_START_RANGE = "startRange";
     public static final String CONFIG_CORROSION_DEATH = "death";
+    public static final String CONFIG_CORROSION_BREAK = "break";
 
     public static final String SHOW = "showStatus";
 }

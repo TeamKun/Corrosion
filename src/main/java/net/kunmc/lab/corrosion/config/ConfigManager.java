@@ -12,6 +12,7 @@ public class ConfigManager {
     static FileConfiguration config;
 
     // コンフィグ管理用のリスト
+    public static Map<String, String> stringConfig = new HashMap();
     public static Map<String, Integer> integerConfig = new HashMap();
     public static Map<String, Boolean> booleanConfig = new HashMap();
 
@@ -25,6 +26,10 @@ public class ConfigManager {
         config = Corrosion.getPlugin().getConfig();
 
         integerConfig.put(CommandConst.CONFIG_UPDATE_BLOCK_TIME, config.getInt(CommandConst.CONFIG_UPDATE_BLOCK_TIME));
+        integerConfig.put(CommandConst.CONFIG_START_RANGE, config.getInt(CommandConst.CONFIG_START_RANGE));
+        booleanConfig.put(CommandConst.CONFIG_CORROSION_DEATH, false);
+        booleanConfig.put(CommandConst.CONFIG_CORROSION_BREAK, false);
+
         for (String key : config.getStringList("switch")) {
             booleanConfig.put(key, true);
         }
