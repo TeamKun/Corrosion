@@ -1,0 +1,96 @@
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
+// wrapperのバージョンでエラーが出たら以下のコマンドで変更すること
+// ./gradlew wrapper --gradle-version 6.1
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.0'
+}
+
+allprojects {
+    apply plugin: "java"
+
+    group "net.kunmc.lab"
+    version "1.0.0"
+    description "Plugin"
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'papermc-repo'
+        url = 'https://papermc.io/repo/repository/maven-public/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+}
+
+dependencies {
+    compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
+}
+
+task generatePatchedJar(group: "setup") {
+    File tmpDir = new File(projectDir.toPath().toAbsolutePath().toString() + "/server/tmp")
+    File tmpPatchedJar = new File(tmpDir.toPath().toAbsolutePath().toString() + "/server/cache/patched_1.16.5.jar")
+    File serverJar = new File(tmpDir.toPath().toAbsolutePath().toString() + "/server/tmpserver.jar")
+    File patchedJar = new File(projectDir.toPath().toAbsolutePath().toString() + "/server/cache/patched_1.16.5.jar")
+
+    if (patchedJar.exists()) {
+        return
+    }
+
+    tmpDir.mkdir()
+    URL url = new URL("https://papermc.io/api/v2/projects/paper/versions/1.16.5/builds/790/downloads/paper-1.16.5-790.jar ")
+    try {
+        InputStream stream = url.openStream()
+        Files.copy(stream, serverJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    } catch (Exception e) {
+        e.printStackTrace()
+    }
+
+    try {
+        Runtime runtime = Runtime.getRuntime()
+        Process p = runtime.exec("java -jar " + serverJar.toPath().toAbsolutePath().toString() + " nogui", new String[0], tmpDir)
+        p.waitFor()
+        p.destroy()
+    } catch (Exception e) {
+        e.printStackTrace()
+    }
+
+    Files.copy(tmpPatchedJar.toPath(), patchedJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    delete(tmpDir)
+}
+
+static void delete(File file) {
+    if (!file.exists()) {
+        return
+    }
+
+    if (file.isDirectory()) {
+        for (File child : file.listFiles()) {
+            delete(child)
+        }
+    }
+
+    file.delete()
+}
+
+shadowJar {
+    archiveFileName = "${rootProject.name}-${archiveVersion}.jar"
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}

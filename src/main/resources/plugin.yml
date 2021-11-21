@@ -1,0 +1,11 @@
+name: Corrosion
+version: @version@
+main: net.kunmc.lab.corrosion.Corrosion
+api-version: 1.16
+authors: [ POne0301 ]
+description: 腐食クラフト
+commands:
+  cor:
+    description: Corrosion Plugin
+    usage: /<command>
+    permission: op
