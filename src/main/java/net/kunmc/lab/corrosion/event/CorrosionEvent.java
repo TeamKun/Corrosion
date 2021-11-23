@@ -2,6 +2,7 @@ package net.kunmc.lab.corrosion.event;
 
 import net.kunmc.lab.corrosion.command.CommandConst;
 import net.kunmc.lab.corrosion.config.ConfigManager;
+import net.kunmc.lab.corrosion.game.CorrosionBlockManager;
 import net.kunmc.lab.corrosion.game.GameManager;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -18,8 +19,8 @@ public class CorrosionEvent implements Listener {
             return;
 
         Block block = e.getBlock();
-        if (GameManager.isCorrosionBlock(block)) {
-            GameManager.blockList.add(GameManager.getPosStringFromBlock(block));
+        if (CorrosionBlockManager.isCorrosionBlock(block)) {
+            CorrosionBlockManager.blockList.add(CorrosionBlockManager.getPosStringFromBlock(block));
         }
     }
 
@@ -28,7 +29,7 @@ public class CorrosionEvent implements Listener {
         if (!GameManager.isRunning() || !ConfigManager.booleanConfig.get(CommandConst.CONFIG_CORROSION_DEATH))
             return;
         Location targetLoc = e.getPlayer().getLocation().add(0,-0.5,0);
-        if (GameManager.isCorrosionBlock(targetLoc.getBlock())) {
+        if (CorrosionBlockManager.isCorrosionBlock(targetLoc.getBlock())) {
             e.getPlayer().damage(10000);
         }
     }
@@ -38,7 +39,7 @@ public class CorrosionEvent implements Listener {
         if (!GameManager.isRunning() || !ConfigManager.booleanConfig.get(CommandConst.CONFIG_CORROSION_BREAK))
             return;
 
-        if (GameManager.isCorrosionBlock(e.getBlock())) {
+        if (CorrosionBlockManager.isCorrosionBlock(e.getBlock())) {
             e.setCancelled(true);
         }
     }

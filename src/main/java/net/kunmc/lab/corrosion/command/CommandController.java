@@ -2,13 +2,15 @@ package net.kunmc.lab.corrosion.command;
 
 import net.kunmc.lab.corrosion.config.ConfigManager;
 import net.kunmc.lab.corrosion.game.GameManager;
-import net.kunmc.lab.corrosion.task.Task;
+import net.kunmc.lab.corrosion.game.CorrosionManager;
 import net.kunmc.lab.corrosion.util.DecolationConst;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static net.kunmc.lab.corrosion.command.CommandConst.CONFIG_START_RANGE;
 
 public class CommandController implements CommandExecutor, TabCompleter {
     @Override
@@ -23,7 +25,8 @@ public class CommandController implements CommandExecutor, TabCompleter {
                     .filter(e -> e.startsWith(input)).collect(Collectors.toList()));
         } else if (args.length == 2 && args[0].equals(CommandConst.CONFIG_SET)) {
             String input = args[args.length-1];
-            String[] target = {CommandConst.CONFIG_CORROSION_DEATH, CommandConst.CONFIG_CORROSION_BREAK, CommandConst.CONFIG_UPDATE_BLOCK_TIME};
+            String[] target = {CommandConst.CONFIG_CORROSION_DEATH, CommandConst.CONFIG_START_RANGE,
+                    CommandConst.CONFIG_CORROSION_BREAK, CommandConst.CONFIG_UPDATE_BLOCK_TIME};
             completions.addAll(Arrays.asList(target).stream()
                     .filter(e -> e.startsWith(input)).collect(Collectors.toList()));
         } else if (args.length == 3 && args[0].equals(CommandConst.CONFIG_SET) &&
@@ -85,10 +88,10 @@ public class CommandController implements CommandExecutor, TabCompleter {
                 switch (args[1]) {
                     case CommandConst.CONFIG_UPDATE_BLOCK_TIME:
                         setIntConfig(sender, args, 3, CommandConst.CONFIG_UPDATE_BLOCK_TIME);
-                        Task.updateBlock();
+                        CorrosionManager.updateBlock();
                         break;
-                    case CommandConst.CONFIG_START_RANGE:
-                        setIntConfig(sender, args, 3, CommandConst.CONFIG_START_RANGE);
+                    case CONFIG_START_RANGE:
+                        setIntConfig(sender, args, 3, CONFIG_START_RANGE);
                         break;
                     case CommandConst.CONFIG_CORROSION_DEATH:
                         setBooleanConfig(sender, args, 3, CommandConst.CONFIG_CORROSION_DEATH);
@@ -139,7 +142,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
                 , usagePrefix, CommandConst.CONFIG_SET, CommandConst.CONFIG_UPDATE_BLOCK_TIME));
         sender.sendMessage(String.format("%s腐食更新の間隔(秒)", descPrefix));
         sender.sendMessage(String.format("%s%s %s <number>"
-                , usagePrefix, CommandConst.CONFIG_SET, CommandConst.CONFIG_START_RANGE));
+                , usagePrefix, CommandConst.CONFIG_SET, CONFIG_START_RANGE));
         sender.sendMessage(String.format("%sstart時の腐食ブロックの探索範囲", descPrefix));
         sender.sendMessage(String.format("%s%s %s <on|off>"
                 , usagePrefix, CommandConst.CONFIG_CORROSION_DEATH));

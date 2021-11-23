@@ -1,4 +1,4 @@
 updateBlockTime: 5
-startRange: 30
+startRange: 10
 switch:
   - death
