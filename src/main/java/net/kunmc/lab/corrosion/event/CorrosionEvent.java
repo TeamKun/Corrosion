@@ -20,7 +20,7 @@ public class CorrosionEvent implements Listener {
 
         Block block = e.getBlock();
         if (CorrosionBlockManager.isCorrosionBlock(block)) {
-            CorrosionBlockManager.blockList.add(CorrosionBlockManager.getPosStringFromBlock(block));
+            CorrosionBlockManager.nextSearchCorrosionBlockList.add(CorrosionBlockManager.getPosStringFromBlock(block));
         }
     }
 
