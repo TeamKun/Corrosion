@@ -20,9 +20,8 @@ public class CorrosionManager {
         CorrosionBlock = new BukkitRunnable() {
             @Override
             public void run() {
-                // リセット判定
-                CorrosionBlockManager.redirectCorrosion();
-                // 腐敗対象を探索
+                System.out.println(CorrosionBlockManager.currentSearchCorrosionBlockList.size());
+               // 腐敗対象を探索
                 for (String pos : CorrosionBlockManager.currentSearchCorrosionBlockList) {
                     CorrosionBlockManager.searchAroundCorrosionBlock(CorrosionBlockManager.getBlockFromPosString(pos));
                 }
@@ -33,30 +32,31 @@ public class CorrosionManager {
                 CorrosionBlockManager.corrodeBlock();
                 // 不要なブロックを削除
                 CorrosionBlockManager.deleteCorrosionBlock();
-           }
+                // リセット判定
+                CorrosionBlockManager.redirectCorrosion();
+            }
         }.runTaskTimer(Corrosion.getPlugin(), 0, ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_TIME) * 20);
     }
 
     public static void deleteBlock(){
         DeleteBlock = new BukkitRunnable() {
-        @Override
-        public void run() {
-            // リセット判定
-            CorrosionBlockManager.redirectCorrosion();
-            // 腐敗対象を探索
-            for (String pos : CorrosionBlockManager.currentSearchCorrosionBlockList) {
-                CorrosionBlockManager.searchAroundCorrosionBlock(CorrosionBlockManager.getBlockFromPosString(pos));
+            @Override
+            public void run() {
+                // リセット判定
+                CorrosionBlockManager.redirectCorrosion();
+                // 腐敗対象を探索
+                for (String pos : CorrosionBlockManager.currentSearchCorrosionBlockList) {
+                    CorrosionBlockManager.searchAroundCorrosionBlock(CorrosionBlockManager.getBlockFromPosString(pos));
+                }
+                // 腐敗処理
+                CorrosionBlockManager.corrodeBlock();
+                // 不要なブロックを削除
+                CorrosionBlockManager.deleteCorrosionBlock();
+                // リスト更新
+                CorrosionBlockManager.updateCurrentCorrosionBlock();
             }
-            // 腐敗処理
-            CorrosionBlockManager.corrodeBlock();
-            // 不要なブロックを削除
-            CorrosionBlockManager.deleteCorrosionBlock();
-            // リスト更新
-            CorrosionBlockManager.updateCurrentCorrosionBlock();
-        }
-    }.runTaskTimer(Corrosion.getPlugin(), 0, (ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_TIME)+1) * 20);
-}
-
+        }.runTaskTimer(Corrosion.getPlugin(), 0, (ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_TIME)+1) * 20);
+    }
 
     public static void stopUpdateBlock() {
         CorrosionBlock = null;

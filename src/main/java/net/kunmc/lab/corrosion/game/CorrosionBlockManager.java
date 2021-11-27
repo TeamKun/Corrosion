@@ -117,10 +117,11 @@ public class CorrosionBlockManager {
         boolean shouldDelete = true;
         for (int[] blockIndex: index) {
             Location loc = block.getLocation();
-            // 一番下にあるブロックはgetCorrosionIndexの範囲から外れるので、単にDelete
 
             loc.add(blockIndex[0], blockIndex[1], blockIndex[2]);
+            // 岩盤下からはブロックを取得できないため飛ばす
             if (loc.getY() == -1) continue;
+
             Block locBlock = loc.getBlock();
             if (locBlock.getType().equals(Material.PURPLE_CONCRETE) || locBlock.getType().equals(Material.AIR)) continue;
 
@@ -135,16 +136,21 @@ public class CorrosionBlockManager {
          * 特定Playerに近い部分だけ残してあとは腐食を消滅させる
          */
 
-        if (currentSearchCorrosionBlockList.size() < 100000) return;
+        if (targetCorrosionBlockList.size() < 150) return;
 
         Player p = CorrosionManager.getTargetPlayer();
+        if (p==null)return;
         Set<String> nextCorrosion = pruningCorrosionTarget(p);
-        for (String pos: nextSearchCorrosionBlockList) {
+
+        for (String pos: currentSearchCorrosionBlockList) {
             if (!nextCorrosion.contains(pos)) {
-                nextSearchCorrosionBlockList.remove(pos);
-                targetDeleteBlockList.add(pos);
+                // リセット時は問答無用で消す
+                getBlockFromPosString(pos).setType(Material.AIR);
+                targetCorrosionBlockList.clear();
             }
         }
+        currentSearchCorrosionBlockList.clear();
+        currentSearchCorrosionBlockList.addAll(nextCorrosion);
     }
 
     private static int[][] getCorrosionIndex() {
@@ -183,21 +189,14 @@ public class CorrosionBlockManager {
                     (pz-bc[2])*(pz-bc[2]));
             distance.put(pos, dist);
         }
-        for (String pos: nextSearchCorrosionBlockList) {
-            int[] bc = getCoordinateFromPosString(pos);
-            double dist = Math.sqrt(
-                    (px-bc[0])*(px-bc[0]) +
-                            (py-bc[1])*(py-bc[1]) +
-                            (pz-bc[2])*(pz-bc[2]));
-            distance.put(pos, dist);
-        }
         // ソート
         List<Map.Entry<String, Integer>> list = new ArrayList(distance.entrySet());
         list.sort(Map.Entry.comparingByValue());
 
         Set<String> pruningCorrosion = new HashSet<>();
         // TODO: 後で更新
-        for (int i =0;i < 1000;i++) {
+        int max = Math.min(100, list.size());
+        for (int i =0;i < max;i++) {
             pruningCorrosion.add(list.get(i).getKey());
         }
 
