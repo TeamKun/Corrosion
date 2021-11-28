@@ -19,18 +19,23 @@ public class GameManager {
             case MODE_NEUTRAL:
                 CorrosionManager.stopUpdateBlock();
                 break;
+            case MODE_PAUSE:
+                CorrosionManager.pauseUpdateBlock();
+                break;
         }
     }
 
     public enum GameMode {
         // ゲーム外の状態
         MODE_NEUTRAL,
-        MODE_START
+        MODE_START,
+        MODE_PAUSE
     }
 
     public static boolean isRunning(){
         return runningMode == GameMode.MODE_START;
     }
-
-
+    public static boolean isPause(){
+        return runningMode == GameMode.MODE_PAUSE;
+    }
 }

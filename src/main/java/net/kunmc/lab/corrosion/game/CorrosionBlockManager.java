@@ -1,6 +1,5 @@
 package net.kunmc.lab.corrosion.game;
 
-import jdk.nashorn.internal.runtime.regexp.joni.Config;
 import net.kunmc.lab.corrosion.command.CommandConst;
 import net.kunmc.lab.corrosion.config.ConfigManager;
 import net.kunmc.lab.corrosion.util.Utils;
@@ -49,7 +48,7 @@ public class CorrosionBlockManager {
         for (int x = -1*range; x<range;x++) {
             for (int z = -1*range; z<range;z++) {
                 for (int y = 0; y<256;y++) {
-                    if (y > p.getWorld().getHighestBlockYAt(x,z)) break;
+                    //if (y > p.getWorld().getHighestBlockYAt(x,z)) break;
                     Block block = p.getWorld().getBlockAt(bx+x, y, bz+z);
                     if (!isCorrosionBlock(block)) continue;
 
@@ -115,8 +114,13 @@ public class CorrosionBlockManager {
     }
 
     private static boolean shouldDeleteBlock(Block block){
+
+        if (!block.getType().equals(Material.PURPLE_CONCRETE)) return false;
+
         int index[][] = getCorrosionIndex();
         boolean shouldDelete = true;
+
+
         for (int[] blockIndex: index) {
             Location loc = block.getLocation();
 

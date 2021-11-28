@@ -1,5 +1,5 @@
-updateBlockTick: 40
-updateBlockMaxNum: 12000
+updateBlockTick: 20
+updateBlockMaxNum: 5000
 updateBlockPruningRatio: 0.2
 startRange: 10
 player: "roadhog_kun"
