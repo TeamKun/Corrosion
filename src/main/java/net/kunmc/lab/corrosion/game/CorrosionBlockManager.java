@@ -48,7 +48,6 @@ public class CorrosionBlockManager {
         for (int x = -1*range; x<range;x++) {
             for (int z = -1*range; z<range;z++) {
                 for (int y = 0; y<256;y++) {
-                    //if (y > p.getWorld().getHighestBlockYAt(x,z)) break;
                     Block block = p.getWorld().getBlockAt(bx+x, y, bz+z);
                     if (!isCorrosionBlock(block)) continue;
 
@@ -86,7 +85,7 @@ public class CorrosionBlockManager {
             int check = targetCorrosionBlockList.get(pos)-1;
             if (check < 0) {
                 Block block = getBlockFromPosString(pos);
-                if (!block.getType().equals(Material.PURPLE_CONCRETE))
+                if (block != null && !block.getType().equals(Material.PURPLE_CONCRETE))
                     Utils.setTypeAndData(getBlockFromPosString(pos), Material.PURPLE_CONCRETE.createBlockData(), false);
                 targetDeleteBlockList.add(pos);
                 deleteBlockList.add(pos);
@@ -103,7 +102,7 @@ public class CorrosionBlockManager {
         Set<String> deleteBlockList = new HashSet<>();
         for (String pos: targetDeleteBlockList) {
             Block block = getBlockFromPosString(pos);
-            if (shouldDeleteBlock(block)) {
+            if (block != null && shouldDeleteBlock(block)) {
                 block.setType(Material.AIR);
                 deleteBlockList.add(pos);
             }
