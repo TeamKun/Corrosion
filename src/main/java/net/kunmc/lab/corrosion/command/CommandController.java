@@ -26,15 +26,14 @@ public class CommandController implements CommandExecutor, TabCompleter {
         } else if (args.length == 2 && args[0].equals(CommandConst.CONFIG_SET)) {
             String input = args[args.length-1];
             String[] target = {CommandConst.CONFIG_CORROSION_DEATH, CommandConst.CONFIG_START_RANGE,
-                    CommandConst.CONFIG_CORROSION_BREAK, CommandConst.CONFIG_UPDATE_BLOCK_TIME};
+                    CommandConst.CONFIG_UPDATE_BLOCK_TICK};
             completions.addAll(Arrays.asList(target).stream()
                     .filter(e -> e.startsWith(input)).collect(Collectors.toList()));
         } else if (args.length == 3 && args[0].equals(CommandConst.CONFIG_SET) &&
-                args[1].equals(CommandConst.CONFIG_UPDATE_BLOCK_TIME)) {
+                args[1].equals(CommandConst.CONFIG_UPDATE_BLOCK_TICK)) {
             completions.add("<Number>");
         } else if (args.length == 3 && args[0].equals(CommandConst.CONFIG_SET) &&
-                (args[1].equals(CommandConst.CONFIG_CORROSION_DEATH) ||
-                        args[1].equals(CommandConst.CONFIG_CORROSION_BREAK))) {
+                (args[1].equals(CommandConst.CONFIG_CORROSION_DEATH))) {
             String input = args[args.length - 1];
             List<String> target = new ArrayList<>();
             if (ConfigManager.booleanConfig.get(args[1])) {
@@ -86,8 +85,8 @@ public class CommandController implements CommandExecutor, TabCompleter {
                 break;
             case CommandConst.CONFIG_SET:
                 switch (args[1]) {
-                    case CommandConst.CONFIG_UPDATE_BLOCK_TIME:
-                        setIntConfig(sender, args, 3, CommandConst.CONFIG_UPDATE_BLOCK_TIME);
+                    case CommandConst.CONFIG_UPDATE_BLOCK_TICK:
+                        setIntConfig(sender, args, 3, CommandConst.CONFIG_UPDATE_BLOCK_TICK);
                         CorrosionManager.updateBlock();
                         break;
                     case CONFIG_START_RANGE:
@@ -95,9 +94,6 @@ public class CommandController implements CommandExecutor, TabCompleter {
                         break;
                     case CommandConst.CONFIG_CORROSION_DEATH:
                         setBooleanConfig(sender, args, 3, CommandConst.CONFIG_CORROSION_DEATH);
-                        break;
-                    case CommandConst.CONFIG_CORROSION_BREAK:
-                        setBooleanConfig(sender, args, 3, CommandConst.CONFIG_CORROSION_BREAK);
                         break;
                     default:
                         sender.sendMessage(DecolationConst.RED + "存在しない設定項目です");
@@ -113,6 +109,12 @@ public class CommandController implements CommandExecutor, TabCompleter {
                 }
                 String prefix = "  ";
                 for (Map.Entry<String, Integer> param : ConfigManager.integerConfig.entrySet()) {
+                    sender.sendMessage(String.format("%s%s: %s", prefix, param.getKey(), param.getValue()));
+                }
+                for (Map.Entry<String, Double> param : ConfigManager.doubleConfig.entrySet()) {
+                    sender.sendMessage(String.format("%s%s: %.1f", prefix, param.getKey(), param.getValue()));
+                }
+                for (Map.Entry<String, String> param : ConfigManager.stringConfig.entrySet()) {
                     sender.sendMessage(String.format("%s%s: %s", prefix, param.getKey(), param.getValue()));
                 }
                 sender.sendMessage(String.format("%sswitch: ", prefix) + switchList);
@@ -137,10 +139,15 @@ public class CommandController implements CommandExecutor, TabCompleter {
         sender.sendMessage(String.format("%s%s"
                 , usagePrefix, CommandConst.CONFIG_RELOAD));
         sender.sendMessage(String.format("%sコンフィグリロード", descPrefix));
-
         sender.sendMessage(String.format("%s%s %s <number>"
-                , usagePrefix, CommandConst.CONFIG_SET, CommandConst.CONFIG_UPDATE_BLOCK_TIME));
-        sender.sendMessage(String.format("%s腐食更新の間隔(秒)", descPrefix));
+                , usagePrefix, CommandConst.CONFIG_SET, CommandConst.CONFIG_UPDATE_BLOCK_TICK));
+        sender.sendMessage(String.format("%s腐食更新の間隔(Tick)", descPrefix));
+        sender.sendMessage(String.format("%s%s %s <number>"
+                , usagePrefix, CommandConst.CONFIG_SET, CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM));
+        sender.sendMessage(String.format("%s腐食ブロックのおおよその最大数（超えたらリセットする値）", descPrefix));
+        sender.sendMessage(String.format("%s%s %s <number>"
+                , usagePrefix, CommandConst.CONFIG_SET, CommandConst.CONFIG_UPDATE_BLOCK_PRUNING_RATIO));
+        sender.sendMessage(String.format("%s腐食ブロックのリセット時の剪定割合", descPrefix));
         sender.sendMessage(String.format("%s%s %s <number>"
                 , usagePrefix, CommandConst.CONFIG_SET, CONFIG_START_RANGE));
         sender.sendMessage(String.format("%sstart時の腐食ブロックの探索範囲", descPrefix));
@@ -153,21 +160,38 @@ public class CommandController implements CommandExecutor, TabCompleter {
 
     }
 
-    private int validateNum(CommandSender sender, String target) {
+    private int validateInteger(CommandSender sender, String target) {
         // 不正な場合は-1を返す
         int num;
         try {
             num = Integer.parseInt(target);
         } catch (NumberFormatException e) {
-            sender.sendMessage(DecolationConst.RED + "整数以外が入力されています");
+            sender.sendMessage(DecolationConst.RED + "数字を入力してください");
             return -1;
         }
         if (num < 0) {
-            sender.sendMessage(DecolationConst.RED + "0以上の整数を入力してください");
+            sender.sendMessage(DecolationConst.RED + "0以上の数字を入力してください");
             return -1;
         }
         return num;
     }
+
+    private double validateDouble(CommandSender sender, String target) {
+        // 不正な場合は-1を返す
+        double num;
+        try {
+            num = Double.parseDouble(target);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(DecolationConst.RED + "数字以外が入力されています");
+            return -1;
+        }
+        if (num < 0 || num > 1) {
+            sender.sendMessage(DecolationConst.RED + "0以上1以下の数字を入力してください");
+            return -1;
+        }
+        return num;
+    }
+
 
     private boolean checkArgsNum(CommandSender sender, int argsLength, int validLength) {
         if (argsLength != validLength) {
@@ -183,7 +207,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
 
     private boolean setIntConfig(CommandSender sender, String[] args, int validLength, String configName){
         if (!checkArgsNum(sender, args.length, validLength)) return false;
-        int ret = validateNum(sender, args[2]);
+        int ret = validateInteger(sender, args[2]);
         if (ret == -1) return false;
 
         ConfigManager.integerConfig.put(configName, ret);
@@ -194,7 +218,6 @@ public class CommandController implements CommandExecutor, TabCompleter {
 
     private boolean setBooleanConfig(CommandSender sender, String[] args, int validLength, String configName){
         if (!checkArgsNum(sender, args.length, validLength)) return false;
-        if (validateNum(sender, args[2]) == -1) return false;
         if (validateSwitch(sender, configName, args[2]) == -1) return false;
 
         boolean setSwitch = false;
@@ -214,8 +237,8 @@ public class CommandController implements CommandExecutor, TabCompleter {
 
     private int validateSwitch(CommandSender sender, String key, String value){
         // on, offの設定確認
-        if (!value.equals("on") && value.equals("off")) {
-            sender.sendMessage(DecolationConst.RED + "on/offのみ有効です");
+        if (!value.equals("on") && !value.equals("off")) {
+            sender.sendMessage(DecolationConst.RED + "on/offのみ設定可能です");
             return -1;
         }
         if (ConfigManager.booleanConfig.get(key) && value.equals("on")) {

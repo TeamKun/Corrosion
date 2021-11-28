@@ -1,4 +1,7 @@
-updateBlockTime: 5
+updateBlockTick: 40
+updateBlockMaxNum: 12000
+updateBlockPruningRatio: 0.2
 startRange: 10
+player: "roadhog_kun"
 switch:
-  - death
+  - "death"

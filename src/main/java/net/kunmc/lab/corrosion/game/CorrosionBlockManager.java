@@ -1,5 +1,6 @@
 package net.kunmc.lab.corrosion.game;
 
+import jdk.nashorn.internal.runtime.regexp.joni.Config;
 import net.kunmc.lab.corrosion.command.CommandConst;
 import net.kunmc.lab.corrosion.config.ConfigManager;
 import net.kunmc.lab.corrosion.util.Utils;
@@ -30,10 +31,10 @@ public class CorrosionBlockManager {
     public static Set<String> currentSearchCorrosionBlockList = new HashSet<>();
     public static Set<String> nextSearchCorrosionBlockList = new HashSet<>();
 
-    // 腐敗対象のブロックの座標を保持(Integerには腐食ブロックに変更するまでの秒数を持つ1~3秒)
+    // 腐敗対象のブロックの座標を保持(Integerには腐食ブロックに変更するまでの遅延(チェック判定回数)を持つ)
     public static Map<String, Integer> targetCorrosionBlockList = new HashMap();
 
-    // 削除対象のブロックの座標を保持
+    // 削除対象のブロックの座標を保持(Integerにはブロックを削除するまでの遅延(チェック判定回数)を持つ)
     public static Set<String> targetDeleteBlockList = new HashSet<>();
 
     private static Random rand = new Random();
@@ -78,7 +79,6 @@ public class CorrosionBlockManager {
             targetCorrosionBlockList.put(pos, rand.nextInt(2));
             nextSearchCorrosionBlockList.add(pos);
         }
-        //targetDeleteBlockList.add(getPosStringFromBlock(block));
     }
 
     public static void corrodeBlock(){
@@ -86,7 +86,9 @@ public class CorrosionBlockManager {
         for (String pos: targetCorrosionBlockList.keySet()) {
             int check = targetCorrosionBlockList.get(pos)-1;
             if (check < 0) {
-                Utils.setTypeAndData(getBlockFromPosString(pos), Material.PURPLE_CONCRETE.createBlockData(), false);
+                Block block = getBlockFromPosString(pos);
+                if (!block.getType().equals(Material.PURPLE_CONCRETE))
+                    Utils.setTypeAndData(getBlockFromPosString(pos), Material.PURPLE_CONCRETE.createBlockData(), false);
                 targetDeleteBlockList.add(pos);
                 deleteBlockList.add(pos);
             } else {
@@ -99,17 +101,17 @@ public class CorrosionBlockManager {
     }
 
     public static void deleteCorrosionBlock() {
-        Set<String> nextDeleteBlockList = new HashSet<>();
+        Set<String> deleteBlockList = new HashSet<>();
         for (String pos: targetDeleteBlockList) {
             Block block = getBlockFromPosString(pos);
-            if (!shouldDeleteBlock(block)) {
-                nextDeleteBlockList.add(pos);
-                continue;
+            if (shouldDeleteBlock(block)) {
+                block.setType(Material.AIR);
+                deleteBlockList.add(pos);
             }
-            block.setType(Material.AIR);
         }
-        targetDeleteBlockList.clear();
-        targetDeleteBlockList.addAll(nextDeleteBlockList);
+        for (String pos: deleteBlockList) {
+            targetDeleteBlockList.remove(pos);
+        }
     }
 
     private static boolean shouldDeleteBlock(Block block){
@@ -136,7 +138,7 @@ public class CorrosionBlockManager {
          * 特定Playerに近い部分だけ残してあとは腐食を消滅させる
          */
 
-        if (targetCorrosionBlockList.size() < 150) return;
+        if (targetCorrosionBlockList.size() < ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM)) return;
 
         Player p = CorrosionManager.getTargetPlayer();
         if (p==null)return;
@@ -144,9 +146,12 @@ public class CorrosionBlockManager {
 
         for (String pos: currentSearchCorrosionBlockList) {
             if (!nextCorrosion.contains(pos)) {
-                // リセット時は問答無用で消す
+                // 片付けるパターン
+                //getBlockFromPosString(pos).setType(Material.AIR);
+                //targetCorrosionBlockList.clear();
+
+                // 残すパターン
                 getBlockFromPosString(pos).setType(Material.AIR);
-                targetCorrosionBlockList.clear();
             }
         }
         currentSearchCorrosionBlockList.clear();
@@ -156,20 +161,12 @@ public class CorrosionBlockManager {
     private static int[][] getCorrosionIndex() {
         /**
          * 腐食の進行方向を返す
-         *   腐食ブロックの総数が上限を超える場合は数を増やさないようにする
-         *     下方向のみの腐食に変える
          */
         int[][] index;
-        if (currentSearchCorrosionBlockList.size() > 100000) {
-            index = new int[][]{
-                    {0, -1, 0}
-            };
-        } else {
-            index = new int[][]{
-                    {0, 0, -1}, {0, 0, 1},
-                    {0, -1, 0}, {0, 1, 0},
-                    {-1, 0, 0}, {1, 0, 0}};
-        }
+        index = new int[][]{
+                {0, 0, -1}, {0, 0, 1},
+                {0, -1, 0}, {0, 1, 0},
+                {-1, 0, 0}, {1, 0, 0}};
         return index;
     }
 
@@ -194,8 +191,7 @@ public class CorrosionBlockManager {
         list.sort(Map.Entry.comparingByValue());
 
         Set<String> pruningCorrosion = new HashSet<>();
-        // TODO: 後で更新
-        int max = Math.min(100, list.size());
+        int max = (int)(Math.min(ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM), list.size()) * ConfigManager.doubleConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_PRUNING_RATIO));
         for (int i =0;i < max;i++) {
             pruningCorrosion.add(list.get(i).getKey());
         }

@@ -4,23 +4,21 @@ import net.kunmc.lab.corrosion.Corrosion;
 import net.kunmc.lab.corrosion.command.CommandConst;
 import net.kunmc.lab.corrosion.config.ConfigManager;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 public class CorrosionManager {
-    private static BukkitTask CorrosionBlock;
-    private static BukkitTask DeleteBlock;
+    private static BukkitTask corrosionBlock;
+    private static BukkitTask deleteBlock;
 
     public static void updateBlock() {
         /**
          * 腐食処理等のループメソッド
          */
-        CorrosionBlock = new BukkitRunnable() {
+        corrosionBlock = new BukkitRunnable() {
             @Override
             public void run() {
-                System.out.println(CorrosionBlockManager.currentSearchCorrosionBlockList.size());
                // 腐敗対象を探索
                 for (String pos : CorrosionBlockManager.currentSearchCorrosionBlockList) {
                     CorrosionBlockManager.searchAroundCorrosionBlock(CorrosionBlockManager.getBlockFromPosString(pos));
@@ -35,11 +33,11 @@ public class CorrosionManager {
                 // リセット判定
                 CorrosionBlockManager.redirectCorrosion();
             }
-        }.runTaskTimer(Corrosion.getPlugin(), 0, ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_TIME) * 20);
+        }.runTaskTimer(Corrosion.getPlugin(), 0, ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_TICK));
     }
 
     public static void deleteBlock(){
-        DeleteBlock = new BukkitRunnable() {
+        deleteBlock = new BukkitRunnable() {
             @Override
             public void run() {
                 // リセット判定
@@ -55,11 +53,12 @@ public class CorrosionManager {
                 // リスト更新
                 CorrosionBlockManager.updateCurrentCorrosionBlock();
             }
-        }.runTaskTimer(Corrosion.getPlugin(), 0, (ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_TIME)+1) * 20);
+        }.runTaskTimer(Corrosion.getPlugin(), 0, (ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_TICK) + 20));
     }
 
     public static void stopUpdateBlock() {
-        CorrosionBlock = null;
+        corrosionBlock.cancel();
+        corrosionBlock = null;
     }
 
     public static Player getTargetPlayer(){
@@ -67,10 +66,7 @@ public class CorrosionManager {
          * 腐食ブロックの進行先ターゲットPlayer取得
          */
 
-        // TODO: 更新する
-        Player p = Bukkit.getPlayer("POne0301");
-        if ( p==null || p.getGameMode().equals(GameMode.CREATIVE) || p.getGameMode().equals(GameMode.SPECTATOR)) return null;
-
+        Player p = Bukkit.getPlayer(ConfigManager.stringConfig.get(CommandConst.CONFIG_PLAYER));
         return p;
     }
 }

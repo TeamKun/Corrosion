@@ -33,14 +33,4 @@ public class CorrosionEvent implements Listener {
             e.getPlayer().damage(10000);
         }
     }
-
-    @EventHandler
-    public void onBlockBreakEvent(BlockBreakEvent e) {
-        if (!GameManager.isRunning() || !ConfigManager.booleanConfig.get(CommandConst.CONFIG_CORROSION_BREAK))
-            return;
-
-        if (CorrosionBlockManager.isCorrosionBlock(e.getBlock())) {
-            e.setCancelled(true);
-        }
-    }
 }
