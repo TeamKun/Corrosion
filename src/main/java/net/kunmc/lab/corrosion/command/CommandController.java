@@ -1,15 +1,21 @@
 package net.kunmc.lab.corrosion.command;
 
 import net.kunmc.lab.corrosion.config.ConfigManager;
-import net.kunmc.lab.corrosion.game.GameManager;
 import net.kunmc.lab.corrosion.game.CorrosionManager;
+import net.kunmc.lab.corrosion.game.GameManager;
 import net.kunmc.lab.corrosion.util.DecolationConst;
 import org.bukkit.Bukkit;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static net.kunmc.lab.corrosion.command.CommandConst.CONFIG_START_RANGE;
@@ -72,8 +78,8 @@ public class CommandController implements CommandExecutor, TabCompleter {
                 }
                 if (!checkArgsNum(sender, args.length, 1)) return true;
                 Player p = null;
-                if (sender instanceof Player){
-                    p =(Player) sender;
+                if (sender instanceof Player) {
+                    p = (Player) sender;
                 }
                 GameManager.controller(GameManager.GameMode.MODE_START, p);
                 sender.sendMessage(DecolationConst.GREEN + "開始します");
@@ -120,7 +126,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
                         setBooleanConfig(sender, args, 3, CommandConst.CONFIG_CORROSION_DEATH);
                         break;
                     case CommandConst.CONFIG_PLAYER:
-                        checkArgsNum(sender, args.length,3);
+                        checkArgsNum(sender, args.length, 3);
                         String name = args[2];
                         if (Bukkit.selectEntities(sender, name).isEmpty()) {
                             sender.sendMessage(DecolationConst.RED + "存在しないプレイヤーです");
@@ -144,7 +150,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
                 sender.sendMessage(DecolationConst.GREEN + "設定値一覧");
                 List<String> switchList = new ArrayList<>();
                 for (Map.Entry<String, Boolean> target : ConfigManager.booleanConfig.entrySet()) {
-                    if ( target.getValue()) switchList.add( target.getKey());
+                    if (target.getValue()) switchList.add(target.getKey());
                 }
                 String prefix = "  ";
                 for (Map.Entry<String, Integer> param : ConfigManager.integerConfig.entrySet()) {
@@ -246,10 +252,10 @@ public class CommandController implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private boolean setDoubleConfig(CommandSender sender, String[] args, int validLength, String configName){
+    private boolean setDoubleConfig(CommandSender sender, String[] args, int validLength, String configName) {
         if (!checkArgsNum(sender, args.length, validLength)) return false;
         double ret = validateDouble(sender, args[2]);
-        if ((int)ret == -1) return false;
+        if ((int) ret == -1) return false;
 
         ConfigManager.doubleConfig.put(configName, ret);
         ConfigManager.setConfig(configName);
@@ -257,7 +263,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private boolean setIntegerConfig(CommandSender sender, String[] args, int validLength, String configName){
+    private boolean setIntegerConfig(CommandSender sender, String[] args, int validLength, String configName) {
         if (!checkArgsNum(sender, args.length, validLength)) return false;
         int ret = validateInteger(sender, args[2]);
         if (ret == -1) return false;
@@ -268,7 +274,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private boolean setBooleanConfig(CommandSender sender, String[] args, int validLength, String configName){
+    private boolean setBooleanConfig(CommandSender sender, String[] args, int validLength, String configName) {
         if (!checkArgsNum(sender, args.length, validLength)) return false;
         if (validateSwitch(sender, configName, args[2]) == -1) return false;
 
@@ -287,7 +293,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private int validateSwitch(CommandSender sender, String key, String value){
+    private int validateSwitch(CommandSender sender, String key, String value) {
         // on, offの設定確認
         if (!value.equals("on") && !value.equals("off")) {
             sender.sendMessage(DecolationConst.RED + "on/offのみ設定可能です");

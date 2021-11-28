@@ -14,10 +14,10 @@ import java.util.*;
 public class CorrosionBlockManager {
     /**
      * 腐食の仕組み、愚直にやるとすぐに落ちるので以下のようにする
-     *   - controlCorrosionBlockListで腐敗対象のブロックを管理
-     *     -
-     *   - targetCorrosionBlockListで対象のブロックを腐敗
-     *   - targetDeleteBlockListで腐敗伝達済みのブロックを削除
+     * - controlCorrosionBlockListで腐敗対象のブロックを管理
+     * -
+     * - targetCorrosionBlockListで対象のブロックを腐敗
+     * - targetDeleteBlockListで腐敗伝達済みのブロックを削除
      */
     // Stringにはブロックの座標を持つ(world名,x軸,y軸,z軸がスペース区切り)
 
@@ -37,6 +37,7 @@ public class CorrosionBlockManager {
     public static Set<String> targetDeleteBlockList = new HashSet<>();
 
     private static Random rand = new Random();
+
     public static void initBlock(Player p) {
         /**
          * プラグインスタート時の腐食ブロックの取得
@@ -45,10 +46,10 @@ public class CorrosionBlockManager {
         int bx = (int) p.getLocation().getX();
         int bz = (int) p.getLocation().getZ();
         int range = ConfigManager.integerConfig.get(CommandConst.CONFIG_START_RANGE);
-        for (int x = -1*range; x<range;x++) {
-            for (int z = -1*range; z<range;z++) {
-                for (int y = 0; y<256;y++) {
-                    Block block = p.getWorld().getBlockAt(bx+x, y, bz+z);
+        for (int x = -1 * range; x < range; x++) {
+            for (int z = -1 * range; z < range; z++) {
+                for (int y = 0; y < 256; y++) {
+                    Block block = p.getWorld().getBlockAt(bx + x, y, bz + z);
                     if (!isCorrosionBlock(block)) continue;
 
                     currentSearchCorrosionBlockList.add(getPosStringFromBlock(block));
@@ -57,7 +58,7 @@ public class CorrosionBlockManager {
         }
     }
 
-    public static void searchAroundCorrosionBlock(Block block){
+    public static void searchAroundCorrosionBlock(Block block) {
         /**
          * 腐食対象を探す基本ロジック
          *  - 腐食対象のブロックの上下左右前後に変換可能なブロックがあれば変換対象として追加
@@ -65,7 +66,7 @@ public class CorrosionBlockManager {
          */
 
         int index[][] = getCorrosionIndex();
-        for (int[] blockIndex: index) {
+        for (int[] blockIndex : index) {
             Location loc = block.getLocation();
             loc.add(blockIndex[0], blockIndex[1], blockIndex[2]);
             Block locBlock = loc.getBlock();
@@ -79,10 +80,10 @@ public class CorrosionBlockManager {
         }
     }
 
-    public static void corrodeBlock(){
+    public static void corrodeBlock() {
         Set<String> deleteBlockList = new HashSet<>();
-        for (String pos: targetCorrosionBlockList.keySet()) {
-            int check = targetCorrosionBlockList.get(pos)-1;
+        for (String pos : targetCorrosionBlockList.keySet()) {
+            int check = targetCorrosionBlockList.get(pos) - 1;
             if (check < 0) {
                 Block block = getBlockFromPosString(pos);
                 if (block != null && !block.getType().equals(Material.PURPLE_CONCRETE))
@@ -93,26 +94,26 @@ public class CorrosionBlockManager {
                 targetCorrosionBlockList.put(pos, check);
             }
         }
-        for (String pos: deleteBlockList) {
+        for (String pos : deleteBlockList) {
             targetCorrosionBlockList.remove(pos);
         }
     }
 
     public static void deleteCorrosionBlock() {
         Set<String> deleteBlockList = new HashSet<>();
-        for (String pos: targetDeleteBlockList) {
+        for (String pos : targetDeleteBlockList) {
             Block block = getBlockFromPosString(pos);
             if (block != null && shouldDeleteBlock(block)) {
                 block.setType(Material.AIR);
                 deleteBlockList.add(pos);
             }
         }
-        for (String pos: deleteBlockList) {
+        for (String pos : deleteBlockList) {
             targetDeleteBlockList.remove(pos);
         }
     }
 
-    private static boolean shouldDeleteBlock(Block block){
+    private static boolean shouldDeleteBlock(Block block) {
 
         if (!block.getType().equals(Material.PURPLE_CONCRETE)) return false;
 
@@ -120,7 +121,7 @@ public class CorrosionBlockManager {
         boolean shouldDelete = true;
 
 
-        for (int[] blockIndex: index) {
+        for (int[] blockIndex : index) {
             Location loc = block.getLocation();
 
             loc.add(blockIndex[0], blockIndex[1], blockIndex[2]);
@@ -128,7 +129,8 @@ public class CorrosionBlockManager {
             if (loc.getY() == -1) continue;
 
             Block locBlock = loc.getBlock();
-            if (locBlock.getType().equals(Material.PURPLE_CONCRETE) || locBlock.getType().equals(Material.AIR)) continue;
+            if (locBlock.getType().equals(Material.PURPLE_CONCRETE) || locBlock.getType().equals(Material.AIR))
+                continue;
 
             shouldDelete = false;
             break;
@@ -141,13 +143,14 @@ public class CorrosionBlockManager {
          * 特定Playerに近い部分だけ残してあとは腐食を消滅させる
          */
 
-        if (targetCorrosionBlockList.size() < ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM)) return;
+        if (targetCorrosionBlockList.size() < ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM))
+            return;
 
         Player p = CorrosionManager.getTargetPlayer();
-        if (p==null)return;
+        if (p == null) return;
         Set<String> nextCorrosion = pruningCorrosionTarget(p);
 
-        for (String pos: currentSearchCorrosionBlockList) {
+        for (String pos : currentSearchCorrosionBlockList) {
             if (!nextCorrosion.contains(pos)) {
                 // 片付けるパターン
                 //getBlockFromPosString(pos).setType(Material.AIR);
@@ -173,7 +176,7 @@ public class CorrosionBlockManager {
         return index;
     }
 
-    private static Set<String> pruningCorrosionTarget(Player p){
+    private static Set<String> pruningCorrosionTarget(Player p) {
         Location pLoc = p.getLocation();
         Map<String, Double> distance = new HashMap<>();
 
@@ -181,12 +184,12 @@ public class CorrosionBlockManager {
         double py = pLoc.getY();
         double pz = pLoc.getZ();
 
-        for (String pos: currentSearchCorrosionBlockList) {
+        for (String pos : currentSearchCorrosionBlockList) {
             int[] bc = getCoordinateFromPosString(pos);
             double dist = Math.sqrt(
-                    (px-bc[0])*(px-bc[0]) +
-                    (py-bc[1])*(py-bc[1]) +
-                    (pz-bc[2])*(pz-bc[2]));
+                    (px - bc[0]) * (px - bc[0]) +
+                            (py - bc[1]) * (py - bc[1]) +
+                            (pz - bc[2]) * (pz - bc[2]));
             distance.put(pos, dist);
         }
         // ソート
@@ -194,8 +197,8 @@ public class CorrosionBlockManager {
         list.sort(Map.Entry.comparingByValue());
 
         Set<String> pruningCorrosion = new HashSet<>();
-        int max = (int)(Math.min(ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM), list.size()) * ConfigManager.doubleConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_PRUNING_RATIO));
-        for (int i =0;i < max;i++) {
+        int max = (int) (Math.min(ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM), list.size()) * ConfigManager.doubleConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_PRUNING_RATIO));
+        for (int i = 0; i < max; i++) {
             pruningCorrosion.add(list.get(i).getKey());
         }
 
@@ -203,40 +206,39 @@ public class CorrosionBlockManager {
     }
 
 
-
-    public static Block getBlockFromPosString(String pos){
+    public static Block getBlockFromPosString(String pos) {
         String[] loc = pos.split(" ");
         return Bukkit.getWorld(loc[0]).getBlockAt(
-                (int)Double.parseDouble(loc[1]),
-                (int)Double.parseDouble(loc[2]),
-                (int)Double.parseDouble(loc[3])
+                (int) Double.parseDouble(loc[1]),
+                (int) Double.parseDouble(loc[2]),
+                (int) Double.parseDouble(loc[3])
         );
     }
 
-    public static void updateCurrentCorrosionBlock(){
+    public static void updateCurrentCorrosionBlock() {
         currentSearchCorrosionBlockList.addAll(nextSearchCorrosionBlockList);
         nextSearchCorrosionBlockList.clear();
     }
 
-    public static int[] getCoordinateFromPosString(String pos){
+    public static int[] getCoordinateFromPosString(String pos) {
         String[] loc = pos.split(" ");
-        int [] coordinate = {(int)Double.parseDouble(loc[1]),
-                (int)Double.parseDouble(loc[2]),
-                (int)Double.parseDouble(loc[3])};
+        int[] coordinate = {(int) Double.parseDouble(loc[1]),
+                (int) Double.parseDouble(loc[2]),
+                (int) Double.parseDouble(loc[3])};
         return coordinate;
     }
 
-    public static String getPosStringFromBlock(Block block){
+    public static String getPosStringFromBlock(Block block) {
         String world = block.getWorld().getName();
         Location loc = block.getLocation();
         return world + " " + loc.getX() + " " + loc.getY() + " " + loc.getZ();
     }
 
-    public static boolean isCorrosionBlock(Block block){
+    public static boolean isCorrosionBlock(Block block) {
         return block.getType().equals(Material.PURPLE_CONCRETE);
     }
 
-    private static boolean isCorrosionTarget(String pos){
+    private static boolean isCorrosionTarget(String pos) {
         return !currentSearchCorrosionBlockList.contains(pos) &&
                 !targetCorrosionBlockList.containsKey(pos) &&
                 !nextSearchCorrosionBlockList.contains(pos) &&

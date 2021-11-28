@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -28,7 +27,7 @@ public class CorrosionEvent implements Listener {
     public void onPlayerMoveEvent(PlayerMoveEvent e) {
         if (!GameManager.isRunning() || !ConfigManager.booleanConfig.get(CommandConst.CONFIG_CORROSION_DEATH))
             return;
-        Location targetLoc = e.getPlayer().getLocation().add(0,-0.5,0);
+        Location targetLoc = e.getPlayer().getLocation().add(0, -0.5, 0);
         if (CorrosionBlockManager.isCorrosionBlock(targetLoc.getBlock())) {
             e.getPlayer().damage(10000);
         }

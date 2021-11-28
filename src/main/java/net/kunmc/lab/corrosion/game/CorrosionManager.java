@@ -19,7 +19,7 @@ public class CorrosionManager {
         corrosionBlock = new BukkitRunnable() {
             @Override
             public void run() {
-               // 腐敗対象を探索
+                // 腐敗対象を探索
                 for (String pos : CorrosionBlockManager.currentSearchCorrosionBlockList) {
                     CorrosionBlockManager.searchAroundCorrosionBlock(CorrosionBlockManager.getBlockFromPosString(pos));
                 }
@@ -74,7 +74,7 @@ public class CorrosionManager {
         }
     }
 
-    public static Player getTargetPlayer(){
+    public static Player getTargetPlayer() {
         /**
          * 腐食ブロックの進行先ターゲットPlayer取得
          */

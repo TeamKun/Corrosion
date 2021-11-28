@@ -41,13 +41,13 @@ public class ConfigManager {
     public static void setConfig(String key) {
         if (integerConfig.containsKey(key)) {
             config.set(key, integerConfig.get(key));
-        } else if (stringConfig.containsKey(key)){
+        } else if (stringConfig.containsKey(key)) {
             config.set(key, stringConfig.get(key));
-        } else if (doubleConfig.containsKey(key)){
+        } else if (doubleConfig.containsKey(key)) {
             config.set(key, doubleConfig.get(key));
         } else if (booleanConfig.containsKey(key)) {
             ArrayList<String> tmpList = new ArrayList();
-            for (String booleanKey: booleanConfig.keySet()) {
+            for (String booleanKey : booleanConfig.keySet()) {
                 if (booleanConfig.get(booleanKey)) tmpList.add(booleanKey);
             }
             config.set("switch", tmpList);

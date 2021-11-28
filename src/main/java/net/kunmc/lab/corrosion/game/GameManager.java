@@ -32,10 +32,11 @@ public class GameManager {
         MODE_PAUSE
     }
 
-    public static boolean isRunning(){
+    public static boolean isRunning() {
         return runningMode == GameMode.MODE_START;
     }
-    public static boolean isPause(){
+
+    public static boolean isPause() {
         return runningMode == GameMode.MODE_PAUSE;
     }
 }
