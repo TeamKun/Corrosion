@@ -9,9 +9,20 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 public class CorrosionEvent implements Listener {
+    @EventHandler
+    public void onPlayerPortalEvent(PlayerChangedWorldEvent event) {
+        if (!GameManager.isRunning() && !GameManager.isPause())
+            return;
+
+        String fromWorld = event.getFrom().toString();
+        String toWorld = event.getPlayer().getWorld().toString();
+        CorrosionBlockManager.saveCorrosionBlockWhenChangeWorld(fromWorld, toWorld);
+    }
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         if (!GameManager.isRunning())

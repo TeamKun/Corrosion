@@ -63,6 +63,9 @@ public class CorrosionManager {
             CorrosionBlockManager.nextSearchCorrosionBlockList.clear();
             CorrosionBlockManager.targetCorrosionBlockList.clear();
             CorrosionBlockManager.targetDeleteBlockList.clear();
+            CorrosionBlockManager.tmpOverWorldCurrentSearchCorrosionBlockList.clear();
+            CorrosionBlockManager.tmpNetherCurrentSearchCorrosionBlockList.clear();
+            CorrosionBlockManager.tmpEndCurrentSearchCorrosionBlockList.clear();
             corrosionBlock = null;
         }
     }

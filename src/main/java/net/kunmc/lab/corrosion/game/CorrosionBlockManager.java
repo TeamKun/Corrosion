@@ -36,6 +36,11 @@ public class CorrosionBlockManager {
     // 削除対象のブロックの座標を保持(Integerにはブロックを削除するまでの遅延(チェック判定回数)を持つ)
     public static Set<String> targetDeleteBlockList = new HashSet<>();
 
+    // ワールド移動時に各ワールドごとの探索の進行状況を保持する変数、ざっくり同じように
+    public static Set<String> tmpOverWorldCurrentSearchCorrosionBlockList = new HashSet<>();
+    public static Set<String> tmpNetherCurrentSearchCorrosionBlockList = new HashSet<>();
+    public static Set<String> tmpEndCurrentSearchCorrosionBlockList = new HashSet<>();
+
     private static Random rand = new Random();
 
     public static void initBlock(Player p) {
@@ -243,5 +248,33 @@ public class CorrosionBlockManager {
                 !targetCorrosionBlockList.containsKey(pos) &&
                 !nextSearchCorrosionBlockList.contains(pos) &&
                 !targetDeleteBlockList.contains(pos);
+    }
+
+    public static void saveCorrosionBlockWhenChangeWorld(String fromWorld, String toWorld) {
+
+        //ワールド移動時に状況を適当にリストにもつ
+        if (fromWorld.endsWith("_nether")) {
+            tmpNetherCurrentSearchCorrosionBlockList.clear();
+            tmpNetherCurrentSearchCorrosionBlockList.addAll(currentSearchCorrosionBlockList);
+        } else if (fromWorld.endsWith("_the_end")) {
+            tmpEndCurrentSearchCorrosionBlockList.clear();
+            tmpEndCurrentSearchCorrosionBlockList.addAll(currentSearchCorrosionBlockList);
+        } else {
+            tmpOverWorldCurrentSearchCorrosionBlockList.clear();
+            tmpOverWorldCurrentSearchCorrosionBlockList.addAll(currentSearchCorrosionBlockList);
+        }
+
+        currentSearchCorrosionBlockList.clear();
+        nextSearchCorrosionBlockList.clear();
+        targetCorrosionBlockList.clear();
+        targetDeleteBlockList.clear();
+
+        if (toWorld.endsWith("_nether")) {
+            nextSearchCorrosionBlockList.addAll(tmpNetherCurrentSearchCorrosionBlockList);
+        } else if (toWorld.endsWith("_the_end")) {
+            nextSearchCorrosionBlockList.addAll(tmpEndCurrentSearchCorrosionBlockList);
+        } else {
+            nextSearchCorrosionBlockList.addAll(tmpOverWorldCurrentSearchCorrosionBlockList);
+        }
     }
 }
