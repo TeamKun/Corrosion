@@ -152,8 +152,12 @@ public class CorrosionBlockManager {
             return;
 
         Player p = CorrosionManager.getTargetPlayer();
-        if (p == null) return;
-        Set<String> nextCorrosion = pruningCorrosionTarget(p);
+        Set<String> nextCorrosion;
+        if (p == null) {
+            nextCorrosion = pruningCorrosionNoTarget();
+        } else {
+            nextCorrosion = pruningCorrosionTarget(p);
+        }
 
         for (String pos : currentSearchCorrosionBlockList) {
             if (!nextCorrosion.contains(pos)) {
@@ -179,6 +183,18 @@ public class CorrosionBlockManager {
                 {0, -1, 0}, {0, 1, 0},
                 {-1, 0, 0}, {1, 0, 0}};
         return index;
+    }
+
+    private static Set<String> pruningCorrosionNoTarget() {
+        Set<String> pruningCorrosion = new HashSet<>();
+        ArrayList <String> list = new ArrayList <String>(currentSearchCorrosionBlockList);
+        int max = Math.min(ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM), list.size());
+        for (int i = 0; i < max; i++) {
+            pruningCorrosion.add(list.get(i));
+        }
+
+        return pruningCorrosion;
+
     }
 
     private static Set<String> pruningCorrosionTarget(Player p) {

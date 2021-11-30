@@ -15,6 +15,7 @@ public class GameManager {
             case MODE_START:
                 CorrosionBlockManager.initBlock(p);
                 CorrosionManager.updateBlock();
+                CorrosionManager.playerDeath();
                 break;
             case MODE_NEUTRAL:
                 CorrosionManager.stopUpdateBlock();

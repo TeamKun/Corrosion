@@ -4,12 +4,14 @@ import net.kunmc.lab.corrosion.Corrosion;
 import net.kunmc.lab.corrosion.command.CommandConst;
 import net.kunmc.lab.corrosion.config.ConfigManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 public class CorrosionManager {
     private static BukkitTask corrosionBlock;
+    private static BukkitTask playerDeath;
     private static BukkitTask deleteBlock;
 
     public static void updateBlock() {
@@ -35,6 +37,27 @@ public class CorrosionManager {
             }
         }.runTaskTimer(Corrosion.getPlugin(), 0, ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_TICK));
     }
+
+    public static void playerDeath() {
+        /**
+         * playerの死亡判定
+         */
+        playerDeath = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!GameManager.isRunning() || !ConfigManager.booleanConfig.get(CommandConst.CONFIG_CORROSION_DEATH))
+                    return;
+
+                Bukkit.getOnlinePlayers().forEach(player -> {
+                    Location targetLoc = player.getLocation().add(0, -0.5, 0);
+                    if (CorrosionBlockManager.isCorrosionBlock(targetLoc.getBlock())) {
+                        player.damage(10000);
+                    }
+                });
+           }
+        }.runTaskTimer(Corrosion.getPlugin(), 0, 1);
+    }
+
 
     //public static void deleteBlock(){
     //    deleteBlock = new BukkitRunnable() {
@@ -68,12 +91,22 @@ public class CorrosionManager {
             CorrosionBlockManager.tmpEndCurrentSearchCorrosionBlockList.clear();
             corrosionBlock = null;
         }
+        if (playerDeath != null) {
+            playerDeath.cancel();
+            playerDeath = null;
+        }
     }
 
     public static void pauseUpdateBlock() {
         if (corrosionBlock != null) {
             corrosionBlock.cancel();
             corrosionBlock = null;
+            playerDeath.cancel();
+            playerDeath = null;
+        }
+        if (playerDeath != null) {
+            playerDeath.cancel();
+            playerDeath = null;
         }
     }
 
