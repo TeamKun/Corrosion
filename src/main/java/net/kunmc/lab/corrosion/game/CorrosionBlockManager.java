@@ -43,6 +43,10 @@ public class CorrosionBlockManager {
 
     private static Random rand = new Random();
 
+    public static boolean saveFlag = false;
+    public static String fromWorld = "";
+    public static String toWorld = "";
+
     public static void initBlock(Player p) {
         /**
          * プラグインスタート時の腐食ブロックの取得
@@ -285,6 +289,7 @@ public class CorrosionBlockManager {
         targetCorrosionBlockList.clear();
         targetDeleteBlockList.clear();
 
+        System.out.println(toWorld);
         if (toWorld.endsWith("_nether")) {
             nextSearchCorrosionBlockList.addAll(tmpNetherCurrentSearchCorrosionBlockList);
         } else if (toWorld.endsWith("_the_end")) {
@@ -292,5 +297,16 @@ public class CorrosionBlockManager {
         } else {
             nextSearchCorrosionBlockList.addAll(tmpOverWorldCurrentSearchCorrosionBlockList);
         }
+
+        System.out.println("--- size start ---");
+        System.out.println(tmpNetherCurrentSearchCorrosionBlockList.size());
+        System.out.println(tmpEndCurrentSearchCorrosionBlockList.size());
+        System.out.println(tmpOverWorldCurrentSearchCorrosionBlockList.size());
+
+        System.out.println(currentSearchCorrosionBlockList.size());
+        System.out.println(nextSearchCorrosionBlockList.size());
+        System.out.println(targetCorrosionBlockList.size());
+        System.out.println(targetDeleteBlockList.size());
+        System.out.println("--- size end ---");
     }
 }
