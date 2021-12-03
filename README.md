@@ -8,10 +8,10 @@
 ## コマンド
 
 - cor
-  - start
+  - start  
     ゲームを開始する
     
-  - stop
+  - stop  
   　ゲームを終了する
   
   - pause
