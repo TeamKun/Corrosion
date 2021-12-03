@@ -152,7 +152,7 @@ public class CorrosionBlockManager {
          * 特定Playerに近い部分だけ残してあとは腐食を消滅させる
          */
 
-        if (targetCorrosionBlockList.size() < ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM))
+        if (currentSearchCorrosionBlockList.size() < ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM))
             return;
 
         Player p = CorrosionManager.getTargetPlayer();
@@ -191,8 +191,8 @@ public class CorrosionBlockManager {
 
     private static Set<String> pruningCorrosionNoTarget() {
         Set<String> pruningCorrosion = new HashSet<>();
-        ArrayList <String> list = new ArrayList <String>(currentSearchCorrosionBlockList);
-        int max = Math.min(ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM), list.size());
+        ArrayList <String> list = new ArrayList(currentSearchCorrosionBlockList);
+        int max = (int)(Math.min(ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM), list.size()) * ConfigManager.doubleConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_PRUNING_RATIO));
         for (int i = 0; i < max; i++) {
             pruningCorrosion.add(list.get(i));
         }
@@ -297,16 +297,5 @@ public class CorrosionBlockManager {
         } else {
             nextSearchCorrosionBlockList.addAll(tmpOverWorldCurrentSearchCorrosionBlockList);
         }
-
-        System.out.println("--- size start ---");
-        System.out.println(tmpNetherCurrentSearchCorrosionBlockList.size());
-        System.out.println(tmpEndCurrentSearchCorrosionBlockList.size());
-        System.out.println(tmpOverWorldCurrentSearchCorrosionBlockList.size());
-
-        System.out.println(currentSearchCorrosionBlockList.size());
-        System.out.println(nextSearchCorrosionBlockList.size());
-        System.out.println(targetCorrosionBlockList.size());
-        System.out.println(targetDeleteBlockList.size());
-        System.out.println("--- size end ---");
     }
 }

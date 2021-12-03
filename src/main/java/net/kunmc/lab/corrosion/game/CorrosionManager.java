@@ -25,7 +25,7 @@ public class CorrosionManager {
             @Override
             public void run() {
                 // 腐敗対象を探索
-                System.out.println(CorrosionBlockManager.currentSearchCorrosionBlockList.size());
+                // System.out.println(CorrosionBlockManager.currentSearchCorrosionBlockList.size());
                 for (String pos : CorrosionBlockManager.currentSearchCorrosionBlockList) {
                     CorrosionBlockManager.searchAroundCorrosionBlock(CorrosionBlockManager.getBlockFromPosString(pos));
                 }
@@ -99,8 +99,6 @@ public class CorrosionManager {
         if (corrosionBlock != null) {
             corrosionBlock.cancel();
             corrosionBlock = null;
-            playerDeath.cancel();
-            playerDeath = null;
         }
         if (playerDeath != null) {
             playerDeath.cancel();

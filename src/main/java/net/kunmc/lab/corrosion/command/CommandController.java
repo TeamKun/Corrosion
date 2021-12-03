@@ -1,6 +1,7 @@
 package net.kunmc.lab.corrosion.command;
 
 import net.kunmc.lab.corrosion.config.ConfigManager;
+import net.kunmc.lab.corrosion.game.CorrosionBlockManager;
 import net.kunmc.lab.corrosion.game.CorrosionManager;
 import net.kunmc.lab.corrosion.game.GameManager;
 import net.kunmc.lab.corrosion.util.DecolationConst;
@@ -163,6 +164,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
                     sender.sendMessage(String.format("%s%s: %s", prefix, param.getKey(), param.getValue()));
                 }
                 sender.sendMessage(String.format("%sswitch: ", prefix) + switchList);
+                sender.sendMessage(String.format("%s腐食ブロック変更数: %s", prefix, CorrosionBlockManager.currentSearchCorrosionBlockList.size()));
                 break;
             default:
                 sender.sendMessage(DecolationConst.RED + "存在しないコマンドです");

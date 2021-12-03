@@ -23,9 +23,7 @@ public class CorrosionEvent implements Listener {
         Player p = CorrosionManager.getTargetPlayer();
         if (p == null || !p.getName().equals(ConfigManager.stringConfig.get(CommandConst.CONFIG_PLAYER))) return;
 
-        String fromWorld = event.getFrom().getName();
-        String toWorld = event.getPlayer().getWorld().getName();
-
+        // Taskで周っている対象とぶつからないようにここでは設定だけ変える
         CorrosionBlockManager.saveFlag = true;
         CorrosionBlockManager.fromWorld = event.getFrom().getName();
         CorrosionBlockManager.toWorld = event.getPlayer().getWorld().getName();
