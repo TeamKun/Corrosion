@@ -1,12 +1,10 @@
 package net.kunmc.lab.corrosion.event;
 
-import net.kunmc.lab.corrosion.Corrosion;
 import net.kunmc.lab.corrosion.command.CommandConst;
 import net.kunmc.lab.corrosion.config.ConfigManager;
 import net.kunmc.lab.corrosion.game.CorrosionBlockManager;
 import net.kunmc.lab.corrosion.game.CorrosionManager;
 import net.kunmc.lab.corrosion.game.GameManager;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

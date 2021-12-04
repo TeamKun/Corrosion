@@ -36,12 +36,14 @@ public class CorrosionBlockManager {
     // 削除対象のブロックの座標を保持(Integerにはブロックを削除するまでの遅延(チェック判定回数)を持つ)
     public static Set<String> targetDeleteBlockList = new HashSet<>();
 
-    // ワールド移動時に各ワールドごとの探索の進行状況を保持する変数、ざっくり同じように
+    // ワールド移動時に各ワールドごとの探索の進行状況を保持する変数
     public static Set<String> tmpOverWorldCurrentSearchCorrosionBlockList = new HashSet<>();
     public static Set<String> tmpNetherCurrentSearchCorrosionBlockList = new HashSet<>();
     public static Set<String> tmpEndCurrentSearchCorrosionBlockList = new HashSet<>();
 
+    // 使い回し系
     private static Random rand = new Random();
+    private static StringBuilder sb = new StringBuilder();
 
     public static boolean saveFlag = false;
     public static String fromWorld = "";
@@ -191,8 +193,8 @@ public class CorrosionBlockManager {
 
     private static Set<String> pruningCorrosionNoTarget() {
         Set<String> pruningCorrosion = new HashSet<>();
-        ArrayList <String> list = new ArrayList(currentSearchCorrosionBlockList);
-        int max = (int)(Math.min(ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM), list.size()) * ConfigManager.doubleConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_PRUNING_RATIO));
+        ArrayList<String> list = new ArrayList(currentSearchCorrosionBlockList);
+        int max = (int) (Math.min(ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM), list.size()) * ConfigManager.doubleConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_PRUNING_RATIO));
         for (int i = 0; i < max; i++) {
             pruningCorrosion.add(list.get(i));
         }
@@ -254,9 +256,16 @@ public class CorrosionBlockManager {
     }
 
     public static String getPosStringFromBlock(Block block) {
-        String world = block.getWorld().getName();
-        Location loc = block.getLocation();
-        return world + " " + loc.getX() + " " + loc.getY() + " " + loc.getZ();
+        sb.append(block.getWorld().getName());
+        sb.append(" ");
+        sb.append(block.getLocation().getX());
+        sb.append(" ");
+        sb.append(block.getLocation().getY());
+        sb.append(" ");
+        sb.append(block.getLocation().getZ());
+        String ret = sb.toString();
+        sb.setLength(0);
+        return ret;
     }
 
     public static boolean isCorrosionBlock(Block block) {
@@ -289,13 +298,12 @@ public class CorrosionBlockManager {
         targetCorrosionBlockList.clear();
         targetDeleteBlockList.clear();
 
-        System.out.println(toWorld);
         if (toWorld.endsWith("_nether")) {
-            nextSearchCorrosionBlockList.addAll(tmpNetherCurrentSearchCorrosionBlockList);
+            currentSearchCorrosionBlockList.addAll(tmpNetherCurrentSearchCorrosionBlockList);
         } else if (toWorld.endsWith("_the_end")) {
-            nextSearchCorrosionBlockList.addAll(tmpEndCurrentSearchCorrosionBlockList);
+            currentSearchCorrosionBlockList.addAll(tmpEndCurrentSearchCorrosionBlockList);
         } else {
-            nextSearchCorrosionBlockList.addAll(tmpOverWorldCurrentSearchCorrosionBlockList);
+            currentSearchCorrosionBlockList.addAll(tmpOverWorldCurrentSearchCorrosionBlockList);
         }
     }
 }

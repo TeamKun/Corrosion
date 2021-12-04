@@ -63,12 +63,12 @@ public class CorrosionManager {
                         player.damage(10000);
                     }
                 });
-           }
+            }
         }.runTaskTimer(Corrosion.getPlugin(), 0, 1);
     }
 
 
-    public static void deleteBlock(){
+    public static void deleteBlock() {
         deleteBlock = new BukkitRunnable() {
             @Override
             public void run() {
