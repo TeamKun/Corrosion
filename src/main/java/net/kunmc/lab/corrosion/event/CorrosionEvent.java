@@ -1,7 +1,5 @@
 package net.kunmc.lab.corrosion.event;
 
-import net.kunmc.lab.corrosion.command.CommandConst;
-import net.kunmc.lab.corrosion.config.ConfigManager;
 import net.kunmc.lab.corrosion.game.CorrosionBlockManager;
 import net.kunmc.lab.corrosion.game.CorrosionManager;
 import net.kunmc.lab.corrosion.game.GameManager;
