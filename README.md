@@ -60,7 +60,7 @@
 
 | 設定名                  | デフォルト値 |
 | ----------------------- | ------------ |
-| updateBlockTick         | 20           |
+| updateBlockTick         | 40           |
 | updateBlockMaxNum       | 2000         |
 | updateBlockPruningRatio | 0.2          |
 | startRange              | 10           |
