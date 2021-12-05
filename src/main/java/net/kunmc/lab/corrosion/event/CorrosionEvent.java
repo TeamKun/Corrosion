@@ -19,9 +19,9 @@ public class CorrosionEvent implements Listener {
             return;
 
         Player p = CorrosionManager.getTargetPlayer();
-        if (p == null || !p.getName().equals(ConfigManager.stringConfig.get(CommandConst.CONFIG_PLAYER))) return;
+        if (p == null || !event.getPlayer().getName().equals(p.getName())) return;
 
-        // Taskで周っている対象とぶつからないようにここでは設定だけ変える
+        // Taskの処理とぶつからないようにここでは設定だけ変える
         CorrosionBlockManager.saveFlag = true;
         CorrosionBlockManager.fromWorld = event.getFrom().getName();
         CorrosionBlockManager.toWorld = event.getPlayer().getWorld().getName();
@@ -33,6 +33,10 @@ public class CorrosionEvent implements Listener {
             return;
 
         Block block = e.getBlock();
+        Player p = CorrosionManager.getTargetPlayer();
+        // 特定プレイヤーがそのワールドにいる場合のみ探索対象に指定
+        if (p == null || !p.getWorld().equals(block.getWorld())) return;
+
         if (CorrosionBlockManager.isCorrosionBlock(block)) {
             CorrosionBlockManager.nextSearchCorrosionBlockList.add(CorrosionBlockManager.getPosStringFromBlock(block));
         }

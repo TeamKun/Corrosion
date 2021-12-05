@@ -2,6 +2,6 @@ updateBlockTick: 40
 updateBlockMaxNum: 2000
 updateBlockPruningRatio: 0.2
 startRange: 10
-player: "roadhog_kun"
+player: roadhog_kun
 switch:
-  - "death"
+  - death

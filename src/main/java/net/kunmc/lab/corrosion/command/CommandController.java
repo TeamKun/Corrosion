@@ -138,6 +138,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
                             return true;
                         }
                         ConfigManager.stringConfig.put(CommandConst.CONFIG_PLAYER, name);
+                        ConfigManager.setConfig(CommandConst.CONFIG_PLAYER);
                         String configName = CommandConst.CONFIG_PLAYER;
                         sender.sendMessage(DecolationConst.GREEN + configName + "の値を" + ConfigManager.stringConfig.get(configName) + "に変更しました");
                         break;

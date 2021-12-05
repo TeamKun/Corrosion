@@ -15,7 +15,6 @@ import static net.kunmc.lab.corrosion.game.CorrosionBlockManager.toWorld;
 public class CorrosionManager {
     private static BukkitTask corrosionBlock;
     private static BukkitTask playerDeath;
-    private static BukkitTask deleteBlock;
 
     public static void updateBlock() {
         /**
@@ -25,7 +24,6 @@ public class CorrosionManager {
             @Override
             public void run() {
                 // 腐敗対象を探索
-                // System.out.println(CorrosionBlockManager.currentSearchCorrosionBlockList.size());
                 for (String pos : CorrosionBlockManager.currentSearchCorrosionBlockList) {
                     CorrosionBlockManager.searchAroundCorrosionBlock(CorrosionBlockManager.getBlockFromPosString(pos));
                 }
@@ -35,7 +33,7 @@ public class CorrosionManager {
                 // 腐敗処理
                 CorrosionBlockManager.corrodeBlock();
                 // 不要なブロックを削除
-                // CorrosionBlockManager.deleteCorrosionBlock();
+                CorrosionBlockManager.deleteCorrosionBlock();
                 // リセット判定
                 CorrosionBlockManager.redirectCorrosion();
 
@@ -67,43 +65,19 @@ public class CorrosionManager {
         }.runTaskTimer(Corrosion.getPlugin(), 0, 1);
     }
 
-
-    public static void deleteBlock() {
-        deleteBlock = new BukkitRunnable() {
-            @Override
-            public void run() {
-                CorrosionBlockManager.deleteCorrosionBlock();
-            }
-        }.runTaskTimer(Corrosion.getPlugin(), 0, (ConfigManager.integerConfig.get(CommandConst.CONFIG_UPDATE_BLOCK_TICK) + 10));
-    }
-
     public static void stopUpdateBlock() {
-        if (corrosionBlock != null) {
-            corrosionBlock.cancel();
-            CorrosionBlockManager.currentSearchCorrosionBlockList.clear();
-            CorrosionBlockManager.nextSearchCorrosionBlockList.clear();
-            CorrosionBlockManager.targetCorrosionBlockList.clear();
-            CorrosionBlockManager.targetDeleteBlockList.clear();
-            CorrosionBlockManager.tmpOverWorldCurrentSearchCorrosionBlockList.clear();
-            CorrosionBlockManager.tmpNetherCurrentSearchCorrosionBlockList.clear();
-            CorrosionBlockManager.tmpEndCurrentSearchCorrosionBlockList.clear();
-            corrosionBlock = null;
-        }
-        if (playerDeath != null) {
-            playerDeath.cancel();
-            playerDeath = null;
-        }
+        cancelAllTask();
+        CorrosionBlockManager.currentSearchCorrosionBlockList.clear();
+        CorrosionBlockManager.nextSearchCorrosionBlockList.clear();
+        CorrosionBlockManager.targetCorrosionBlockList.clear();
+        CorrosionBlockManager.targetDeleteBlockList.clear();
+        CorrosionBlockManager.tmpOverWorldCurrentSearchCorrosionBlockList.clear();
+        CorrosionBlockManager.tmpNetherCurrentSearchCorrosionBlockList.clear();
+        CorrosionBlockManager.tmpEndCurrentSearchCorrosionBlockList.clear();
     }
 
     public static void pauseUpdateBlock() {
-        if (corrosionBlock != null) {
-            corrosionBlock.cancel();
-            corrosionBlock = null;
-        }
-        if (playerDeath != null) {
-            playerDeath.cancel();
-            playerDeath = null;
-        }
+        cancelAllTask();
     }
 
     public static Player getTargetPlayer() {
@@ -113,5 +87,16 @@ public class CorrosionManager {
 
         Player p = Bukkit.getPlayer(ConfigManager.stringConfig.get(CommandConst.CONFIG_PLAYER));
         return p;
+    }
+
+    private static void cancelAllTask() {
+        if (corrosionBlock != null) {
+            corrosionBlock.cancel();
+            corrosionBlock = null;
+        }
+        if (playerDeath != null) {
+            playerDeath.cancel();
+            playerDeath = null;
+        }
     }
 }
