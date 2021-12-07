@@ -106,6 +106,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
             case CommandConst.CONFIG_RELOAD:
                 if (!checkArgsNum(sender, args.length, 1)) return true;
                 ConfigManager.loadConfig(true);
+                CorrosionManager.changeUpdateBlockTick();
                 sender.sendMessage(DecolationConst.GREEN + "設定をリロードしました");
                 break;
             case CommandConst.CONFIG_SET:
