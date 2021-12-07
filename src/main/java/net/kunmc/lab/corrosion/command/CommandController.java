@@ -112,7 +112,7 @@ public class CommandController implements CommandExecutor, TabCompleter {
                 switch (args[1]) {
                     case CommandConst.CONFIG_UPDATE_BLOCK_TICK:
                         setIntegerConfig(sender, args, 3, CommandConst.CONFIG_UPDATE_BLOCK_TICK);
-                        CorrosionManager.updateBlock();
+                        CorrosionManager.changeUpdateBlockTick();
                         break;
                     case CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM:
                         setIntegerConfig(sender, args, 3, CommandConst.CONFIG_UPDATE_BLOCK_MAX_NUM);

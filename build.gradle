@@ -4,7 +4,7 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 group "net.kunmc.lab"
-version "1.0.0"
+version "1.0.1"
 description "Corrosion Plugin"
 
 allprojects {

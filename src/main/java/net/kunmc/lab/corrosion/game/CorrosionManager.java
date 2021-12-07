@@ -89,6 +89,13 @@ public class CorrosionManager {
         return p;
     }
 
+    public static void changeUpdateBlockTick(){
+        if (corrosionBlock != null) {
+            corrosionBlock.cancel();
+            updateBlock();
+        }
+    }
+
     private static void cancelAllTask() {
         if (corrosionBlock != null) {
             corrosionBlock.cancel();
